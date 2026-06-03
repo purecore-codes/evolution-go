@@ -7,8 +7,412 @@
     <title>Evolution GO Manager</title>
     <script type="module" crossorigin src="/assets/index-Dx4-byTC.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BsyggRdn.css">
+    <style>
+      /* Modal Styles */
+      .contacts-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .contacts-modal {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      
+      .contacts-modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .contacts-modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+      }
+      
+      .contacts-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0;
+        line-height: 1;
+      }
+      
+      .contacts-modal-close:hover {
+        color: #1f2937;
+      }
+      
+      .contacts-search-container {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      .contacts-search-input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+      }
+      
+      .contacts-search-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+      
+      .contacts-modal-body {
+        padding: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+      
+      .contacts-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .contact-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background-color 0.2s;
+      }
+      
+      .contact-item:hover {
+        background-color: #f9fafb;
+      }
+      
+      .contact-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #6b7280;
+        flex-shrink: 0;
+      }
+      
+      .contact-info {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .contact-name {
+        font-weight: 500;
+        color: #1f2937;
+        margin: 0 0 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .contact-number {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .contacts-loading {
+        padding: 40px 20px;
+        text-align: center;
+        color: #6b7280;
+      }
+      
+      .contacts-error {
+        padding: 40px 20px;
+        text-align: center;
+        color: #ef4444;
+      }
+      
+      .contacts-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #6b7280;
+      }
+      
+      .contacts-count {
+        padding: 10px 20px;
+        background-color: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.85rem;
+        color: #6b7280;
+        text-align: center;
+      }
+      
+      /* Button in instance card */
+      .load-contacts-btn {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      
+      .load-contacts-btn:hover {
+        background-color: #2563eb;
+      }
+      
+      .load-contacts-btn:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+      }
+      
+      .load-contacts-btn.loading {
+        position: relative;
+        color: transparent;
+      }
+      
+      .load-contacts-btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Contacts Modal functionality
+      (function() {
+        let currentInstanceName = null;
+        
+        function createModal() {
+          const overlay = document.createElement('div');
+          overlay.className = 'contacts-modal-overlay';
+          overlay.style.display = 'none';
+          overlay.innerHTML = \`
+            <div class="contacts-modal">
+              <div class="contacts-modal-header">
+                <h2 class="contacts-modal-title">Contatos - <span id="modal-instance-name"></span></h2>
+                <button class="contacts-modal-close" onclick="closeContactsModal()">&times;</button>
+              </div>
+              <div class="contacts-search-container">
+                <input 
+                  type="text" 
+                  class="contacts-search-input" 
+                  placeholder="Buscar contatos..." 
+                  id="contacts-search-input"
+                  oninput="filterContacts(this.value)"
+                />
+              </div>
+              <div class="contacts-modal-body">
+                <ul class="contacts-list" id="contacts-list"></ul>
+              </div>
+              <div class="contacts-count" id="contacts-count"></div>
+            </div>
+          \`;
+          document.body.appendChild(overlay);
+          return overlay;
+        }
+        
+        let modalOverlay = null;
+        let allContacts = [];
+        
+        window.openContactsModal = function(instanceName) {
+          if (!modalOverlay) {
+            modalOverlay = createModal();
+          }
+          
+          currentInstanceName = instanceName;
+          document.getElementById('modal-instance-name').textContent = instanceName;
+          modalOverlay.style.display = 'flex';
+          
+          loadContacts(instanceName);
+        };
+        
+        window.closeContactsModal = function() {
+          if (modalOverlay) {
+            modalOverlay.style.display = 'none';
+          }
+        };
+        
+        window.filterContacts = function(searchTerm) {
+          const term = searchTerm.toLowerCase().trim();
+          const filtered = allContacts.filter(contact => {
+            const name = (contact.pushName || contact.fullName || contact.found || '').toLowerCase();
+            const number = (contact.id || '').toLowerCase();
+            return name.includes(term) || number.includes(term);
+          });
+          renderContacts(filtered);
+        };
+        
+        function loadContacts(instanceName) {
+          const listElement = document.getElementById('contacts-list');
+          const countElement = document.getElementById('contacts-count');
+          listElement.innerHTML = '<li class="contacts-loading">Carregando contatos...</li>';
+          countElement.textContent = '';
+          
+          // Get API URL from current page
+          const apiUrl = window.location.origin + '/user/contacts';
+          
+          fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': localStorage.getItem('apikey') || sessionStorage.getItem('apikey') || ''
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erro ao carregar contatos');
+            }
+            return response.json();
+          })
+          .then(data => {
+            allContacts = data.data || [];
+            if (allContacts.length === 0) {
+              listElement.innerHTML = '<li class="contacts-empty">Nenhum contato encontrado</li>';
+              countElement.textContent = '0 contatos';
+            } else {
+              renderContacts(allContacts);
+              countElement.textContent = allContacts.length + ' contato(s)';
+            }
+          })
+          .catch(error => {
+            console.error('Error loading contacts:', error);
+            listElement.innerHTML = '<li class="contacts-error">Erro ao carregar contatos: ' + error.message + '</li>';
+            countElement.textContent = '';
+          });
+        }
+        
+        function renderContacts(contacts) {
+          const listElement = document.getElementById('contacts-list');
+          
+          if (contacts.length === 0) {
+            listElement.innerHTML = '<li class="contacts-empty">Nenhum contato encontrado</li>';
+            return;
+          }
+          
+          listElement.innerHTML = contacts.map(contact => {
+            const displayName = contact.pushName || contact.fullName || contact.found || 'Sem nome';
+            const number = contact.id || '';
+            const initial = displayName.charAt(0).toUpperCase();
+            
+            return \`
+              <li class="contact-item">
+                <div class="contact-avatar">\${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">\${escapeHtml(displayName)}</p>
+                  <p class="contact-number">\${escapeHtml(number)}</p>
+                </div>
+              </li>
+            \`;
+          }).join('');
+        }
+        
+        function escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+        
+        // Close modal on overlay click
+        window.addEventListener('click', function(event) {
+          if (event.target === modalOverlay) {
+            closeContactsModal();
+          }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && modalOverlay && modalOverlay.style.display !== 'none') {
+            closeContactsModal();
+          }
+        });
+        
+        // Add button to instance cards after they are rendered
+        function addLoadContactsButton() {
+          // Look for connected instance cards
+          const cards = document.querySelectorAll('[class*="card"], [class*="instance"]');
+          cards.forEach(card => {
+            // Check if card is for a connected instance
+            const isConnected = card.textContent.includes('connected') || 
+                               card.textContent.includes('conectado') ||
+                               card.querySelector('[class*="connected"], [class*="success"]');
+            
+            if (isConnected && !card.querySelector('.load-contacts-btn')) {
+              // Find instance name
+              const nameElement = card.querySelector('h1, h2, h3, [class*="name"], [class*="title"]');
+              const instanceName = nameElement ? nameElement.textContent.trim() : 'Instância';
+              
+              const btn = document.createElement('button');
+              btn.className = 'load-contacts-btn';
+              btn.innerHTML = '📋 Carregar Contatos';
+              btn.onclick = function(e) {
+                e.stopPropagation();
+                openContactsModal(instanceName);
+              };
+              
+              card.appendChild(btn);
+            }
+          });
+        }
+        
+        // Run after initial load and on mutations
+        setTimeout(addLoadContactsButton, 1000);
+        
+        const observer = new MutationObserver(function(mutations) {
+          setTimeout(addLoadContactsButton, 500);
+        });
+        
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      })();
+    </script>
   </body>
 </html>
