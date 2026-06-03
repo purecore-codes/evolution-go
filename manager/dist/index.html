@@ -220,6 +220,219 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+      
+      /* Chat Modal Styles */
+      .chat-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+      }
+      
+      .chat-modal {
+        background: #e5ddd5;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        height: 70vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+      
+      .chat-header {
+        padding: 15px 20px;
+        background: #075e54;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      
+      .chat-back-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      
+      .chat-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #075e54;
+        flex-shrink: 0;
+      }
+      
+      .chat-contact-info {
+        flex: 1;
+        min-width: 0;
+      }
+      
+      .chat-contact-name {
+        font-weight: 600;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .chat-contact-status {
+        font-size: 0.75rem;
+        opacity: 0.8;
+        margin: 0;
+      }
+      
+      .chat-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .message {
+        max-width: 75%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        position: relative;
+        word-wrap: break-word;
+        animation: fadeIn 0.2s ease;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .message.sent {
+        background: #dcf8c6;
+        align-self: flex-end;
+        border-bottom-right-radius: 0;
+      }
+      
+      .message.received {
+        background: white;
+        align-self: flex-start;
+        border-bottom-left-radius: 0;
+      }
+      
+      .message-content {
+        font-size: 0.9rem;
+        color: #1f2937;
+        margin: 0 0 4px 0;
+      }
+      
+      .message-meta {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.7rem;
+        color: #6b7280;
+      }
+      
+      .message-status {
+        display: inline-flex;
+        align-items: center;
+      }
+      
+      .status-pending {
+        color: #9ca3af;
+      }
+      
+      .status-sent {
+        color: #9ca3af;
+      }
+      
+      .status-read {
+        color: #3b82f6;
+        font-weight: bold;
+      }
+      
+      .chat-input-container {
+        padding: 10px 15px;
+        background: #f0f2f5;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      
+      .chat-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 24px;
+        font-size: 0.95rem;
+        outline: none;
+        background: white;
+      }
+      
+      .chat-send-btn {
+        background: #075e54;
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+      }
+      
+      .chat-send-btn:hover {
+        background: #128c7e;
+      }
+      
+      .chat-send-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      
+      .chat-loading {
+        text-align: center;
+        padding: 20px;
+        color: #6b7280;
+      }
+      
+      .no-messages {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+        font-style: italic;
+      }
     </style>
   </head>
   <body>
@@ -341,16 +554,96 @@
             const number = contact.id || '';
             const initial = displayName.charAt(0).toUpperCase();
             
-            return \`
-              <li class="contact-item">
-                <div class="contact-avatar">\${initial}</div>
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
                 <div class="contact-info">
-                  <p class="contact-name">\${escapeHtml(displayName)}</p>
-                  <p class="contact-number">\${escapeHtml(number)}</p>
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
                 </div>
               </li>
-            \`;
-          }).join('');
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
+            return `
+              <li class="contact-item" onclick="openChatWithContact(contact, currentInstanceName)" style="cursor: pointer;">
+                <div class="contact-avatar">${initial}</div>
+                <div class="contact-info">
+                  <p class="contact-name">${escapeHtml(displayName)}</p>
+                  <p class="contact-number">${escapeHtml(number)}</p>
+                </div>
+              </li>
+            `;
         }
         
         function escapeHtml(text) {
@@ -411,6 +704,349 @@
         observer.observe(document.body, {
           childList: true,
           subtree: true
+        });
+      })();
+      
+      // Chat Modal functionality
+      (function() {
+        let currentChatContact = null;
+        let currentInstanceName = null;
+        let chatMessages = [];
+        let messageListeners = [];
+        let chatModalOverlay = null;
+        let wsConnection = null;
+        
+        function createChatModal() {
+          const overlay = document.createElement('div');
+          overlay.className = 'chat-modal-overlay';
+          overlay.style.display = 'none';
+          overlay.innerHTML = `
+            <div class="chat-modal">
+              <div class="chat-header">
+                <button class="chat-back-btn" onclick="closeChatModal()">←</button>
+                <div class="chat-avatar" id="chat-avatar">?</div>
+                <div class="chat-contact-info">
+                  <p class="chat-contact-name" id="chat-contact-name">-</p>
+                  <p class="chat-contact-status" id="chat-contact-status">online</p>
+                </div>
+                <button class="chat-close-btn" onclick="closeChatModal()">&times;</button>
+              </div>
+              <div class="chat-messages" id="chat-messages">
+                <div class="chat-loading">Carregando mensagens...</div>
+              </div>
+              <div class="chat-input-container">
+                <input 
+                  type="text" 
+                  class="chat-input" 
+                  placeholder="Digite uma mensagem" 
+                  id="chat-input"
+                  onkeypress="handleChatKeyPress(event)"
+                />
+                <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()">➤</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(overlay);
+          return overlay;
+        }
+        
+        window.openChatModal = function(contact, instanceName) {
+          if (!chatModalOverlay) {
+            chatModalOverlay = createChatModal();
+          }
+          
+          currentChatContact = contact;
+          currentInstanceName = instanceName;
+          
+          // Update header
+          const displayName = contact.pushName || contact.fullName || contact.found || contact.id || 'Desconhecido';
+          document.getElementById('chat-contact-name').textContent = displayName;
+          const initial = displayName.charAt(0).toUpperCase();
+          document.getElementById('chat-avatar').textContent = initial;
+          
+          chatModalOverlay.style.display = 'flex';
+          
+          // Load chat history from SQLite via API
+          loadChatHistory(contact.id, instanceName);
+          
+          // Setup WebSocket for real-time messages
+          setupWebSocket(instanceName);
+        };
+        
+        window.closeChatModal = function() {
+          if (chatModalOverlay) {
+            chatModalOverlay.style.display = 'none';
+          }
+          if (wsConnection) {
+            wsConnection.close();
+            wsConnection = null;
+          }
+          // Remove listeners
+          messageListeners.forEach(l => {
+            try { navigator.serviceWorker.removeEventListener('message', l); } catch(e) {}
+          });
+          messageListeners = [];
+        };
+        
+        window.handleChatKeyPress = function(event) {
+          if (event.key === 'Enter') {
+            sendMessage();
+          }
+        };
+        
+        function loadChatHistory(contactId, instanceName) {
+          const messagesElement = document.getElementById('chat-messages');
+          messagesElement.innerHTML = '<div class="chat-loading">Carregando histórico...</div>';
+          chatMessages = [];
+          
+          // Fetch from SQLite via API endpoint
+          const apiUrl = window.location.origin + '/user/chat/history?contact=' + encodeURIComponent(contactId) + '&instance=' + encodeURIComponent(instanceName);
+          
+          fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': localStorage.getItem('apikey') || sessionStorage.getItem('apikey') || ''
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erro ao carregar histórico');
+            }
+            return response.json();
+          })
+          .then(data => {
+            chatMessages = data.messages || data.data || [];
+            renderMessages();
+          })
+          .catch(error => {
+            console.error('Error loading chat history:', error);
+            messagesElement.innerHTML = '<div class="no-messages">Histórico não disponível. Inicie uma conversa!</div>';
+          });
+        }
+        
+        function renderMessages() {
+          const messagesElement = document.getElementById('chat-messages');
+          
+          if (chatMessages.length === 0) {
+            messagesElement.innerHTML = '<div class="no-messages">Nenhuma mensagem ainda. Comece a conversar!</div>';
+            return;
+          }
+          
+          messagesElement.innerHTML = chatMessages.map(msg => {
+            const time = formatMessageTime(msg.timestamp || msg.createdAt || Date.now());
+            const statusIcon = getMessageStatusIcon(msg.status);
+            const isSent = msg.fromMe === true || msg.type === 'sent';
+            
+            return `
+              <div class="message ${isSent ? 'sent' : 'received'}" data-message-id="${msg.key?.id || msg.id || ''}">
+                <p class="message-content">${escapeHtml(msg.text || msg.body || msg.message || '')}</p>
+                <div class="message-meta">
+                  <span>${time}</span>
+                  ${isSent ? `<span class="message-status ${getStatusClass(msg.status)}">${statusIcon}</span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          // Scroll to bottom
+          setTimeout(() => {
+            messagesElement.scrollTop = messagesElement.scrollHeight;
+          }, 100);
+        }
+        
+        function formatMessageTime(timestamp) {
+          const date = new Date(timestamp);
+          return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function getMessageStatusIcon(status) {
+          switch(status) {
+            case 'read': return '✓✓';
+            case 'delivered': return '✓✓';
+            case 'sent': return '✓✓';
+            case 'pending': return '✓';
+            default: return '✓';
+          }
+        }
+        
+        function getStatusClass(status) {
+          switch(status) {
+            case 'read': return 'status-read';
+            case 'delivered': return 'status-sent';
+            case 'sent': return 'status-sent';
+            case 'pending': return 'status-pending';
+            default: return 'status-pending';
+          }
+        }
+        
+        window.sendMessage = function() {
+          const input = document.getElementById('chat-input');
+          const sendBtn = document.getElementById('chat-send-btn');
+          const text = input.value.trim();
+          
+          if (!text || !currentChatContact || !currentInstanceName) return;
+          
+          sendBtn.disabled = true;
+          
+          // Optimistic update - add message to UI immediately
+          const tempId = 'temp_' + Date.now();
+          const tempMessage = {
+            id: tempId,
+            key: { id: tempId },
+            text: text,
+            body: text,
+            message: text,
+            fromMe: true,
+            status: 'pending',
+            timestamp: Date.now(),
+            createdAt: Date.now()
+          };
+          chatMessages.push(tempMessage);
+          renderMessages();
+          input.value = '';
+          
+          // Send to API
+          const apiUrl = window.location.origin + '/user/sendMessage';
+          
+          fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': localStorage.getItem('apikey') || sessionStorage.getItem('apikey') || ''
+            },
+            body: JSON.stringify({
+              instance: currentInstanceName,
+              number: currentChatContact.id,
+              message: text
+            })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Erro ao enviar mensagem');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Update message status to sent
+            const msgIndex = chatMessages.findIndex(m => m.id === tempId);
+            if (msgIndex !== -1) {
+              chatMessages[msgIndex].status = 'sent';
+              if (data.messageId) {
+                chatMessages[msgIndex].key = { id: data.messageId };
+                chatMessages[msgIndex].id = data.messageId;
+              }
+              renderMessages();
+            }
+            sendBtn.disabled = false;
+          })
+          .catch(error => {
+            console.error('Error sending message:', error);
+            // Update message status to failed
+            const msgIndex = chatMessages.findIndex(m => m.id === tempId);
+            if (msgIndex !== -1) {
+              chatMessages[msgIndex].status = 'failed';
+              renderMessages();
+            }
+            sendBtn.disabled = false;
+            alert('Erro ao enviar mensagem: ' + error.message);
+          });
+        };
+        
+        function setupWebSocket(instanceName) {
+          // Try to connect via WebSocket for real-time updates
+          const wsUrl = 'ws://' + window.location.host + '/ws/' + instanceName;
+          
+          try {
+            wsConnection = new WebSocket(wsUrl);
+            
+            wsConnection.onopen = () => {
+              console.log('WebSocket connected for', instanceName);
+            };
+            
+            wsConnection.onmessage = (event) => {
+              try {
+                const data = JSON.parse(event.data);
+                handleIncomingMessage(data);
+              } catch(e) {
+                console.error('Error parsing WS message:', e);
+              }
+            };
+            
+            wsConnection.onerror = (error) => {
+              console.error('WebSocket error:', error);
+            };
+            
+            wsConnection.onclose = () => {
+              console.log('WebSocket closed');
+            };
+          } catch(e) {
+            console.log('WebSocket not available, using polling');
+          }
+          
+          // Also listen for service worker messages (for push notifications)
+          if ('serviceWorker' in navigator) {
+            const listener = (event) => {
+              if (event.data && event.data.type === 'whatsapp_message') {
+                handleIncomingMessage(event.data.payload);
+              }
+            };
+            navigator.serviceWorker.addEventListener('message', listener);
+            messageListeners.push(listener);
+          }
+        }
+        
+        function handleIncomingMessage(data) {
+          // Check if message is for current chat
+          const contactId = currentChatContact?.id;
+          const messageNumber = data.key?.remoteJid || data.number || data.from || '';
+          
+          // Normalize numbers for comparison
+          const normalizedContact = contactId?.replace(/[^0-9]/g, '');
+          const normalizedMessage = messageNumber.replace(/[^0-9]/g, '');
+          
+          if (normalizedContact && normalizedMessage.includes(normalizedContact)) {
+            // Add message to chat
+            const newMessage = {
+              id: data.key?.id || Date.now().toString(),
+              key: data.key || {},
+              text: data.message?.conversation || data.message?.extendedTextMessage?.text || data.body || data.message || '',
+              body: data.message?.conversation || data.message?.extendedTextMessage?.text || data.body || data.message || '',
+              message: data.message?.conversation || data.message?.extendedTextMessage?.text || data.body || data.message || '',
+              fromMe: data.key?.fromMe || false,
+              status: data.status || (data.key?.fromMe ? 'sent' : 'read'),
+              timestamp: data.messageTimestamp || data.timestamp || Date.now(),
+              createdAt: data.messageTimestamp || data.timestamp || Date.now()
+            };
+            
+            // Avoid duplicates
+            const exists = chatMessages.some(m => m.id === newMessage.id);
+            if (!exists) {
+              chatMessages.push(newMessage);
+              renderMessages();
+            } else {
+              // Update existing message status
+              const existingIndex = chatMessages.findIndex(m => m.id === newMessage.id);
+              if (existingIndex !== -1 && newMessage.status) {
+                chatMessages[existingIndex].status = newMessage.status;
+                renderMessages();
+              }
+            }
+          }
+        }
+        
+        // Close modal on overlay click
+        window.addEventListener('click', function(event) {
+          if (event.target === chatModalOverlay) {
+            closeChatModal();
+          }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && chatModalOverlay && chatModalOverlay.style.display !== 'none') {
+            closeChatModal();
+          }
         });
       })();
     </script>
