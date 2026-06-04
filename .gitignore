@@ -1,81 +1,33 @@
 ```
-# Build artifacts
-dist/
-build/
-*.pyc
-__pycache__/
+# Test dependencies
+tests/node_modules/
+tests/venv/
+tests/.venv/
+tests/__pycache__/
+tests/.pytest_cache/
+tests/.mypy_cache/
 
-# Dependencies
-node_modules/
-.venv/
-venv/
+# Test build artifacts
+tests/dist/
+tests/build/
+tests/target/
+tests/.gradle/
 
-# Logs and temporary files
-*.log
-*.tmp
-*.swp
+# Test logs and coverage
+tests/*.log
+tests/coverage/
+tests/htmlcov/
+tests/.coverage
 
-# Environment files
-.env
-.env.local
-*.env.*
+# Test editor files
+tests/.vscode/
+tests/.idea/
+tests/*.swp
+tests/*.swo
+tests/*.tmp
 
-# Editors
-.vscode/
-.idea/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Python specific
-*.pyc
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-
-# Node.js specific
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Compiled binary files
-*.class
-*.o
-*.exe
-*.dll
-*.so
-*.a
-*.obj
-*.out
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# Test environment files
+tests/.env
+tests/.env.local
+tests/*.env.*
 ```
